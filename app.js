@@ -23,48 +23,93 @@ winningLogic(playerMovesArray)
 draw()
 */
 
-const gameBoard = [[0,1,2],[3,4,5],[6,7,8]];
+const winningCombo = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 const tics = document.querySelectorAll('.tic');
+const startGame = document.querySelector('#start');
+const restart = document.querySelector('#restart');
+const winnerPlayer = document.querySelector('.modal-content');
+const beforModal = document.querySelector('.before-modal')
 const bothMoves = [];
 
-const makePlayer = function(){
-    const storeMoveX = [];
-    const storeMoveO = [];
+const game = function () {
+    function computerPlay(){
+        const ticArray = Array.from(tics);
+        const emptryTics = ticArray.filter(num=>{
+            return (!num.innerText);
+        })
+        const num = emptryTics.map(index=>[
+            index.getAttribute('data-index')
+        ]);
+        
+        if(num.length==0){
+            return;
+        }
+        const rand = Math.floor(Math.random()*num.length);
+        tics[num[rand]].textContent='O';
+        bothMoves.push('O')
+    }
 
-    const playMove = function(x){
-        Array.from(tics, (e)=>{
-            e.addEventListener('click', ()=>{
-                const index = e.dataset.index;
-                if(e.textContent===''){
-                    if(bothMoves.length === 0 || bothMoves[bothMoves.length-1] === 'O'){
-                        e.textContent = 'X';
-                        storeMoveX.push(index);
-                        bothMoves.push('X');
-                        checkWinner(storeMoveX)
-                    }else if(bothMoves[bothMoves.length-1] === 'X'){
-                        e.textContent = 'O';
-                        storeMoveO.push(index);
-                        bothMoves.push('O');
-                        checkWinner(storeMoveO);
-                    }
+    function playerPlay(){
+        tics.forEach(tic=>{
+            tic.addEventListener('click', ()=>{
+                if(!tic.textContent==''){
+                    return;
                 }
+                tic.textContent = 'X';
+                bothMoves.push(tic.getAttribute('data-index'))
+                this.computerPlay();
+                if(this.checkDraw()){
+                    this.restart();
+                };
             })
-        });
-    };
+        })
+    }
 
-    const checkWinner = function(moves){
-        moves.forEach(element => {
-            
-        });
-    };
-    
-    return {playMove};
-};
+    function checkWinner(player){
+        return winningCombo.some(move=>{
+            return move.every(moves=>{
+                return tics[moves].textContent===player;
+            })
+        })
+    }
 
-const startGame = function (){
-    const player = makePlayer();
-    player.playMove()
+    function checkWin(){
+        if (checkWinner('X')){
+            beforModal.classList.add('modal')
+            winnerPlayer.style.display = 'flex';
+            restart();
+        }
+        else if(checkWinner('O')){
+            restart();
+            alert('Winner is O')
+        }
+        else{
+            return false;
+        }
+    }
+
+    function checkDraw(){
+        if(!checkWin() && bothMoves.length==9){
+            alert('Draw');
+            return true;
+        }
+    }
+
+    function restart(){
+        tics.forEach(el=>{
+            el.textContent='';
+        })
+    }
+
+    return {playerPlay, checkWinner, computerPlay, checkDraw, restart}
 }
 
-startGame();
+startGame.addEventListener('click', function starting(){
+    const start = game();
+    start.playerPlay()
+})
 
+restart.addEventListener('click', ()=>{
+    const restartH = game();
+    restartH.restart();
+})
