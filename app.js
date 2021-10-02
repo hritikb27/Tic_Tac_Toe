@@ -29,7 +29,7 @@ const startGame = document.querySelector('#start');
 const restart = document.querySelector('#restart');
 const winnerPlayer = document.querySelector('.modal-content');
 const beforModal = document.querySelector('.before-modal')
-const bothMoves = [];
+let bothMoves = [];
 
 const game = function () {
     function computerPlay(){
@@ -58,9 +58,7 @@ const game = function () {
                 tic.textContent = 'X';
                 bothMoves.push(tic.getAttribute('data-index'))
                 this.computerPlay();
-                if(this.checkDraw()){
-                    this.restart();
-                };
+                checkDraw();
             })
         })
     }
@@ -75,13 +73,10 @@ const game = function () {
 
     function checkWin(){
         if (checkWinner('X')){
-            beforModal.classList.add('modal')
-            winnerPlayer.style.display = 'flex';
-            restart();
+            displayModal('Winner is X');
         }
         else if(checkWinner('O')){
-            restart();
-            alert('Winner is O')
+            displayModal('Winner is O');
         }
         else{
             return false;
@@ -90,8 +85,7 @@ const game = function () {
 
     function checkDraw(){
         if(!checkWin() && bothMoves.length==9){
-            alert('Draw');
-            return true;
+            displayModal('Draw');
         }
     }
 
@@ -99,6 +93,15 @@ const game = function () {
         tics.forEach(el=>{
             el.textContent='';
         })
+        bothMoves = [];
+    }
+
+    function displayModal(player){
+        setTimeout(function(){
+            beforModal.classList.add('modal')
+            winnerPlayer.textContent = `${player}`;
+            winnerPlayer.style.display = 'flex';
+        },0)
     }
 
     return {playerPlay, checkWinner, computerPlay, checkDraw, restart}
@@ -111,5 +114,8 @@ startGame.addEventListener('click', function starting(){
 
 restart.addEventListener('click', ()=>{
     const restartH = game();
+    beforModal.classList.remove('modal')
+    winnerPlayer.style.display = 'none';
     restartH.restart();
+    restartH.playerPlay();
 })
