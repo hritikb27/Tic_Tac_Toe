@@ -26,12 +26,13 @@ draw()
 const winningCombo = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 const tics = document.querySelectorAll('.tic');
 const startGame = document.querySelector('#start');
-const restart = document.querySelector('#restart');
+const res = document.querySelector('#restart');
 const winnerPlayer = document.querySelector('.modal-content');
 const beforModal = document.querySelector('.before-modal')
 let bothMoves = [];
 
 const game = function () {
+
     function computerPlay(){
         const ticArray = Array.from(tics);
         const emptryTics = ticArray.filter(num=>{
@@ -73,10 +74,10 @@ const game = function () {
 
     function checkWin(){
         if (checkWinner('X')){
-            displayModal('Winner is X');
+            displayBoard.displayModal('Winner is X');
         }
         else if(checkWinner('O')){
-            displayModal('Winner is O');
+            displayBoard.displayModal('Winner is O');
         }
         else{
             return false;
@@ -85,18 +86,22 @@ const game = function () {
 
     function checkDraw(){
         if(!checkWin() && bothMoves.length==9){
-            displayModal('Draw');
+            displayBoard.displayModal('Draw');
         }
     }
 
-    function restart(){
+    return {playerPlay, checkWinner, computerPlay, checkDraw}
+}
+
+const displayBoard = (()=>{
+    const restart = ()=>{
         tics.forEach(el=>{
             el.textContent='';
         })
         bothMoves = [];
     }
 
-    function displayModal(player){
+    const displayModal = (player)=>{
         setTimeout(function(){
             beforModal.classList.add('modal')
             winnerPlayer.textContent = `${player}`;
@@ -104,18 +109,18 @@ const game = function () {
         },0)
     }
 
-    return {playerPlay, checkWinner, computerPlay, checkDraw, restart}
-}
+    startGame.addEventListener('click', function starting(){
+        const start = game();
+        start.playerPlay()
+    })
+    
+    res.addEventListener('click', ()=>{
+        const restartGame = game();
+        beforModal.classList.remove('modal')
+        winnerPlayer.style.display = 'none';
+        restart();
+        restartGame.playerPlay();
+    })
 
-startGame.addEventListener('click', function starting(){
-    const start = game();
-    start.playerPlay()
-})
-
-restart.addEventListener('click', ()=>{
-    const restartH = game();
-    beforModal.classList.remove('modal')
-    winnerPlayer.style.display = 'none';
-    restartH.restart();
-    restartH.playerPlay();
-})
+    return {restart, displayModal}
+})()
