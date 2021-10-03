@@ -1,28 +1,3 @@
-/* 
-1. Create an array of gameboard
-2. Create a factory function to create Player Objects
-3. Create an Object to control the game flow
-4. Create a function to play the move on the board
-5. If 3-in-a-row, then end the game
-
-[winning combinations]
-
-Player Factory Function:
-
-New Player Object = 
-
-If the move can be played(){}
-
-getPosition where played(){}
-
-Is 3-in-a-row completed(){}
-
-winningLogic(playerMovesArray)
-*> if none player win, then draw()
-
-draw()
-*/
-
 const winningCombo = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 const tics = document.querySelectorAll('.tic');
 const startGame = document.querySelector('#start');
@@ -59,7 +34,7 @@ const game = function () {
                 tic.textContent = 'X';
                 bothMoves.push(tic.getAttribute('data-index'))
                 this.computerPlay();
-                checkDraw();
+                checkWin();
             })
         })
     }
@@ -79,18 +54,12 @@ const game = function () {
         else if(checkWinner('O')){
             displayBoard.displayModal('Winner is O');
         }
-        else{
-            return false;
-        }
-    }
-
-    function checkDraw(){
-        if(!checkWin() && bothMoves.length==9){
+        else if(bothMoves.length==9){
             displayBoard.displayModal('Draw');
         }
     }
 
-    return {playerPlay, checkWinner, computerPlay, checkDraw}
+    return {playerPlay, checkWinner, computerPlay}
 }
 
 const displayBoard = (()=>{
